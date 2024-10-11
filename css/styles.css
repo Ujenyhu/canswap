@@ -1,0 +1,184 @@
+/* .display {
+    display: grid;
+    grid-template-rows: auto 1fr max-content;
+    min-height: 100vh;
+    min-height: 100dvh;
+} */
+
+.header {
+    align-items: center;
+    /* display: flex;
+    gap: .5rem;
+    padding: .5rem;
+    width: 100%;
+    z-index: 50; */
+}
+
+.header .right-side {
+    align-items: center;
+    display: flex;
+    gap: .25rem;
+    margin-left: auto;
+}
+
+.logo-container span{
+    /* color: #5a32a3; */
+    color: rgb(142, 112, 193);
+    font-size: 2.7rem;
+}
+
+.logo-container a{
+    text-decoration: none;
+    color: #fff;
+    font-size: 1.5rem;
+    /* color: rgb(212, 202, 230); */ 
+}
+
+
+
+
+/* Swap Form */
+
+/* div.swap-form-one{
+    align-items: center;
+    justify-content: center;
+    /* display: flex; 
+} */
+.swap-form-one {
+    /* border: 1px solid #dee2e6; */
+    background-color: #262b33;
+    /* border: 3px solid #262b33; */
+    opacity: 1;
+    padding: 2em;
+    /* margin-top: 2em; */
+    border-radius: 0.8em;
+    width: 60%;
+}
+
+.dropdown-token {
+    background-color: #000;
+    border: 1px #000 !important;
+    color: #fff;
+    border-radius: 4em;
+    font-weight: bold;
+}
+
+.dropdown-item {
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    cursor: pointer;
+    background-color: beige;
+}
+
+.icon {
+    background-color: #fff;
+    border-radius: 7em;
+    padding: 0.1em;
+}
+
+img.icon{
+    width: 18px;
+    height: 18px;
+}
+
+.input-amount {
+    /* background-color: rgb(229, 226, 226); */
+    background-color: transparent;
+    border: 0;
+    /* display: block; */
+    /* line-height: 1; */
+    width: 100%;
+    font-size: 30px;
+    font-weight: 400;
+    text-align: right;
+    caret-color: 5px solid #fff !important;
+}
+
+#swap-amount:focus {
+    background-color: transparent !important;
+    border: 0 !important;
+    cursor: pointer;
+    outline: none;
+    color: #fff;
+    caret-color: 5px solid #fff;
+
+}
+
+/* Remove spinners for Chrome, Safari, Edge, and Opera */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Remove spinners for Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.to-circle {
+    /* border-radius: 7em;
+    background-color: #262b33;
+    padding: 0.7em; */
+    text-align: center;
+    justify-content: center;
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+
+}
+
+.btn-continue{
+    text-align: center;
+}
+
+#start-button, #continue-button{
+    width: 60%;
+}
+
+/* Small Token Dropdown */
+.token-dropdown {
+    top: -25px;
+    left: 0;
+    width: 120px;
+}
+
+/* Purple Button #6d24f5; */
+.btn-purple {
+    background-color: rgb(60, 17, 135);
+    border-color: rgb(60, 17, 135);
+    color: #fff;
+    font-size: 17px;
+}
+
+.btn-purple:hover {
+    background-color: #5a32a3;
+    border-color: #5a32a3;
+}
+
+.btn-purple:disabled {
+    background-color: rgb(60, 17, 135);
+    border-color: rgb(60, 17, 135);
+    cursor:not-allowed !important;
+}
+
+
+/* .token-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+.token-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+}
+.token-item img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+.token-item:hover {
+    background-color: #f1f1f1;
+} */
