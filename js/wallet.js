@@ -19,39 +19,62 @@ document.getElementById('connect-wallet').addEventListener('click', async () => 
     
 });
 
-
 async function connectMetaMask() { 
     debugger
 
-    // Initialize MetaMask SDK (if using it)
-    const metamask = new MetaMaskSDK.MetaMaskSDK({
-        dappMetadata: {
-            name: "OnSwap",
-            url: window.location.host,
-        },
-        infuraAPIKey:"d7f98c3ba6a94d888d01ae2a217dcbf4",
-    });
+    // Check if MetaMask is directly available
+    if (window.ethereum && window.ethereum.isMetaMask) {
+        try {
+            // Request accounts from MetaMask
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const account = accounts[0];
+           
+            // Save the connected account to localStorage     
+            localStorage.setItem('connectedAccount', account);
+            document.getElementById('walletText').textContent = account;
+            document.getElementById("start-button").textContent = "Enter Amount";
+            showToast('Wallet connected successfully!');
+        } catch (error) {
+            showToast(`Failed to connect to MetaMask: ${error.message}`, 'error');
+        }
+    } else {
+        showToast('Please install MetaMask!', 'error');
+    }
+}
 
-    // Set the MetaMask provider
-    window.ethereum =  metamask.getProvider();
+
+// async function connectMetaMask() { 
+//     debugger
+
+//     // Initialize MetaMask SDK (if using it)
+//     const metamask = new MetaMaskSDK.MetaMaskSDK({
+//         dappMetadata: {
+//             name: "Canswap",
+//             url: window.location.host,
+//         },
+//         infuraAPIKey:"d7f98c3ba6a94d888d01ae2a217dcbf4",
+//     });
+
+//     // Set the MetaMask provider
+//     window.ethereum =  metamask.getProvider();
     
 
-    // Check if MetaMask is installed
-    if (typeof window.ethereum === 'undefined') {
-        alert('Please install MetaMask!');
-        return;
-    }
+//     // Check if MetaMask is installed
+//     if (typeof window.ethereum === 'undefined') {
+//         alert('Please install MetaMask!');
+//         return;
+//     }
                  
-    // Request accounts
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-    const account = accounts[0];
+//     // Request accounts
+//     const accounts = await provider.request({ method: 'eth_requestAccounts' });
+//     const account = accounts[0];
   
-    // Save the connected account to localStorage     
-    localStorage.setItem('connectedAccount', account);
-    document.getElementById('walletText').textContent = account;
-    document.getElementById("start-button").textContent = "Enter Amount";
-    showToast('Wallet connected successfully!');
-}
+//     // Save the connected account to localStorage     
+//     localStorage.setItem('connectedAccount', account);
+//     document.getElementById('walletText').textContent = account;
+//     document.getElementById("start-button").textContent = "Enter Amount";
+//     showToast('Wallet connected successfully!');
+// }
 
 
 async function switchNetwork() {
@@ -115,7 +138,8 @@ function networkChanged(){
 accountChanged();
 networkChanged();
 
-
+//NOTE NOTE
+//Add an implementation of action when an account is disconnected. The continue button should be disabled just like the application loaded from start
 
 
 

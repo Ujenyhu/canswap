@@ -3,51 +3,93 @@ document.getElementById("to-amount").setAttribute("disabled", "true");
 const startButton = document.getElementById("start-button");
 const continueButton = document.getElementById("continue-button");
 
-startButton.setAttribute("disabled", "true");
-continueButton.setAttribute("hidden", "true");
+// continueButton.setAttribute("hidden", "true");
+// startButton.setAttribute("disabled", "true");
 
-const swapAmountInput = document.getElementById('swap-amount');
+
+let swapAmountInput = document.getElementById('swap-amount');
 const tokenToInput = document.getElementById('selected-token-to-value');
 
 
+
 document.addEventListener('DOMContentLoaded', () => {
- 
-    addStorage();
+    getStorage();
     swapAmountInput.addEventListener('input', () => {
 
         const swapAmount = swapAmountInput.value.trim();
         const selectedToken = tokenToInput.value.trim();
 
-        // Case: Both token is selected and amount is valid
-        if (selectedToken && swapAmount > 0) {
-            startButton.setAttribute("hidden", true);
-            continueButton.removeAttribute("hidden");
-            // startButton.textContent = "Continue";
-            // startButton.removeAttribute("disabled");
-        } 
-        // Case: Token is not selected but amount is entered
-        else if (!selectedToken && swapAmount > 0) {
-            startButton.textContent = "Select Token";
-            startButton.setAttribute("disabled", "true");
-        } 
+        if (document.getElementById('walletText').textContent !== "Connect Metamask Wallet") {
+            
+            // Case: Both token is selected and amount is valid
+            if (selectedToken && swapAmount > 0) {
+                debugger;
+                startButton.setAttribute("hidden", true);
+                continueButton.removeAttribute("hidden");
+            }
+            // Case: Token is not selected but amount is entered
+            else if (!selectedToken && swapAmount > 0) {
+                debugger;
+                startButton.textContent = "Select Token";
+                startButton.setAttribute("disabled", "true");
+            }
 
-        // Case: Token is selected but no amount is entered
-        else if (selectedToken && swapAmount === 0) {
-            startButton.textContent = "Enter Amount";
-            startButton.setAttribute("disabled", "true");
+            // Case: Token is selected but no amount is entered
+            else if (
+                (selectedToken && swapAmount === 0) ||
+                (selectedToken && swapAmount === "")
+            ) {
+                debugger;
+                startButton.textContent = "Enter Amount";
+                startButton.setAttribute("disabled", "true");
+            }
+            // Case: Neither token is selected nor amount is entered
+            // else {
+            //     debugger;
+            //     startButton.textContent = "Select Token";
+            //     startButton.setAttribute("disabled", "true");
+            // }
         }
 
-        // Case: Neither token is selected nor amount is entered
-        else {
-            startButton.textContent = "Enter Amount";
-            startButton.setAttribute("disabled", "true");
-        }
+        console.log("Wallet:", connectWallet);
     });
 });
 
 
-function addStorage() {
-    
+// swapAmountInput.addEventListener('input', () => {
+
+//     const swapAmount = swapAmountInput.value.trim();
+//     const selectedToken = tokenToInput.value.trim();
+
+//     // Case: Both token is selected and amount is valid
+//     if (selectedToken && swapAmount > 0) {
+//         startButton.setAttribute("hidden", true);
+//         continueButton.removeAttribute("hidden");
+//         // startButton.textContent = "Continue";
+//         // startButton.removeAttribute("disabled");
+//     } 
+//     // Case: Token is not selected but amount is entered
+//     else if (!selectedToken && swapAmount > 0) {
+//         startButton.textContent = "Select Token";
+//         startButton.setAttribute("disabled", "true");
+//     } 
+
+//     // Case: Token is selected but no amount is entered
+//     else if (selectedToken && swapAmount === 0) {
+//         startButton.textContent = "Enter Amount";
+//         startButton.setAttribute("disabled", "true");
+//     }
+
+//     // Case: Neither token is selected nor amount is entered
+//     else {
+//         startButton.textContent = "Enter Amount";
+//         startButton.setAttribute("disabled", "true");
+//     }
+// });
+
+
+function getStorage() {
+    //debugger
     // Check if there's a previously connected account
     const storedAccount = localStorage.getItem('connectedAccount');
     if (storedAccount) {
@@ -94,15 +136,19 @@ function selectToToken(iconSrc, tokenText, tokenValue) {
     document.getElementById('selected-token-to-icon').removeAttribute("hidden");
     console.log("Selected token:", tokenValue);
 
-    if(swapAmountInput.value !== 0){
-            
-        //startButton.textContent = "Continue";
-        startButton.setAttribute("hidden", true);
-        continueButton.removeAttribute("hidden");
+    
+    if (document.getElementById('walletText').textContent !== "Connect Metamask Wallet") {
+        if (swapAmountInput.value !== "") {
+            //debugger;
+            //startButton.textContent = "Continue";
+            startButton.setAttribute("hidden", true);
+            continueButton.removeAttribute("hidden");
+        } else {
+            debugger;
+            startButton.textContent = "Enter Amount";
+        }
     }
-    else{
-        startButton.textContent = "Enter Amount";
-    }
+    console.log("Swap Amount:", swapAmountInput.value);
 }
 
 
@@ -131,17 +177,18 @@ function filterTokens() {
 //document.getElementById("amount").type = "number";
 
 
-function showToast(message, type = 'success') {
+function showToast(message, type = "success") {
+    debugger
     // Define background colors for each type
     const backgroundColors = {
         info: '#0dcaf0',
         warning: '#ffc107',
         success: '#198754',
-        danger: '#dc3545'
+        error: '#dc3545'
     };
     Toastify({
         text: message,
-        duration: 3000,
+        duration: 4000,
         className: type, 
         close: true,
         gravity: "top", 
@@ -169,6 +216,6 @@ function showToast(message, type = 'success') {
 //     window.ethereum = metamask.getProvider();
 // }
 
-
+getStorage();
 
 
