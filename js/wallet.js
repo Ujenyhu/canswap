@@ -128,16 +128,19 @@ function accountChanged() {
     //debugger;
     window.ethereum.on('accountsChanged', (accounts) => {
         if (accounts.length === 0) {
+            
             localStorage.removeItem('connectedAccount');
+            localStorage.removeItem('TokenBalance');
+           
             document.getElementById('walletText').textContent = "Connect Metamask Wallet";
-            console.log('Wallet disconnected');
             showToast('Wallet disconnected!', 'info');
             window.location.reload();
         } else {
             localStorage.setItem('connectedAccount', accounts[0]);
+            GetBalance(accounts[0]);
+            
             document.getElementById('walletText').textContent = accounts[0];
             showToast('Wallet connected successfully!');
-            console.log(`Connected to wallet: ${accounts[0]}`);
 
         }
     });
@@ -173,6 +176,29 @@ async function GetBalance(address){
     } catch (error) {
         showToast(`Error fetching native balance`, 'error');
         console.error('Error fetching native balance:', error);
+    }
+}
+
+// Basic ERC-20 ABI with only the balanceOf function
+const tokenABI = [
+    "function balanceOf(address owner) view returns (uint256)"
+];
+
+async function getTokenBalance(tokenAddress, address) {
+    try {
+        // Create a contract instance for the ERC-20 token
+        const tokenContract = new ethers.Contract(tokenAddress, tokenABI, provider);
+        
+        // Get the token balance for the user's address
+        const balance = await tokenContract.balanceOf(address);
+        
+        // Format balance with appropriate decimals (usually 18 for ERC-20 tokens)
+        const formattedBalance = ethers.utils.formatUnits(balance, 18);
+        console.log('Token Balance:', formattedBalance);
+        
+        return formattedBalance;
+    } catch (error) {
+        console.error('Error fetching token balance:', error);
     }
 }
 
