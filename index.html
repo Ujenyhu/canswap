@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'sha256-vvt4KWwuNr51XfE5m+hzeNEGheofZzG97ccfqGsPwvE=' https://cdn.jsdelivr.net; style-src 'self' nonce-sha256-vvt4KWwuNr51XfE5m+hzeNEGheofZzG97ccfqGsPwvE=; frame-ancestors 'none'"
+    /> -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="apple-touch-icon" sizes="180x180" href="img/canswap-logo-white.png">
     <link rel="icon" type="image/png" sizes="32x32" href="img/canswap-logo-white.png">
@@ -20,7 +24,8 @@
     <link rel="stylesheet" href="wwwroot/icons/fontawesome/css/solid.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/styles.css" />
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="wwwroot/lib/toastify/css/toastify.min.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"> -->
 
     <!-- Include Ethers.js, Metamask, and Uniswap SDK via CDN -->
     <script src="wwwroot/lib/metamask/@metamask/sdk/dist/browser/iife/metamask-sdk.js" async></script>
@@ -87,7 +92,7 @@
 
         </nav>
 
-        <div class="d-flex justify-content-center align-items-center" style="margin-top: 5rem;">
+        <div class="d-flex justify-content-center align-items-center"style="margin-top: 5rem;">
 
             <form class="swap-form-one">
 
@@ -132,10 +137,9 @@
                         </ul>
                         <input type="hidden" id="selected-token-value" name="selectedToken" value="eth" />
                     </div>
-                    <input type="number" class="input-amount" id="swap-amount" placeholder="0" autocomplete="off" maxlength="25" spellcheck="false" />
-
+                    <input type="number" class="input-amount" id="swap-amount" placeholder="0" autocomplete="off" maxlength="25" spellcheck="false" />            
                 </div>
-
+                <input id="balance"  />
                 <hr class="to-circle mt-5 mb-4" />
 
                 <!-- to -->
@@ -177,14 +181,18 @@
                         </ul>
                         <input type="hidden" id="selected-token-to-value" name="selectedToToken" value="" />
                     </div>
-                    <input type="number" class="input-amount" id="to-amount" />
 
                 </div>
             
             </form>
         </div>
-
-        <div class="btn-continue mb-5 mt-5">
+        <!-- style="display: none;" -->
+        <div class="d-flex mt-4" id="network-warning" style="display: none !important;">
+            <p> <span class="fa fa-warning fa-1x"></span>  Please make sure you on the sepolia testnet network before proceeding </p>
+        </div>
+        <!-- <button type="submit" id="proceed-button" class="btn btn-purple btn-sm">Continue</button>
+        <button type="submit" id="cancel-button" class="btn btn-white btn-sm">Cancel</button> -->
+        <div class="btn-continue mb-5" id="btn-div">
             <button type="submit" id="start-button" class="btn btn-purple" disabled>Connect Metamask Wallet</button>
             <button type="submit" id="continue-button" class="btn btn-purple" hidden>Continue</button>
         </div>
@@ -209,14 +217,16 @@
     <!-- scripts -->
     <script src="wwwroot/lib/bootstrap/js/bootstrap.min.js"></script>
     <script src="wwwroot/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script> -->
 
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="wwwroot/lib/toastify/toastify.js"></script>
+    <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script> -->
 
     <!-- Custom JS -->
     <script src="js/index.js" async></script>
     <script src="js/wallet.js" async></script>
+    <script src="js/varhelper.js" async></script>
 </body>
 
 </html>

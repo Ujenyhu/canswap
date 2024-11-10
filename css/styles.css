@@ -96,6 +96,16 @@ img.icon{
     caret-color: 5px solid #fff !important;
 }
 
+#balance {
+    color: rgb(194, 175, 224) !important;
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+    font-size: 15px;
+    text-align: left;
+    font-style: italic;
+}
+
 #swap-amount:focus {
     background-color: transparent !important;
     border: 0 !important;
@@ -129,8 +139,27 @@ input[type=number] {
 
 }
 
-.btn-continue{
+#network-warning {
+    justify-content: center;
+    align-items: center;
+    display: none;
+}
+
+#network-warning p{
+    font: 1em;
+    color: whitesmoke;
     text-align: center;
+}
+
+#network-warning span{
+    color: rgb(241, 204, 95);  
+    /* #ab7903  */
+    margin-right: 0.3rem;
+}
+
+#btn-div{
+    text-align: center;
+    margin-top: 3rem;
 }
 
 #start-button, #continue-button{

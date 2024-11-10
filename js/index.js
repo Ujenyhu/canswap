@@ -1,4 +1,4 @@
-document.getElementById("to-amount").setAttribute("disabled", "true");
+//document.getElementById("to-amount").setAttribute("disabled", "true");
 
 const startButton = document.getElementById("start-button");
 const continueButton = document.getElementById("continue-button");
@@ -26,6 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 debugger;
                 startButton.setAttribute("hidden", true);
                 continueButton.removeAttribute("hidden");
+               
+                //DISPLAY WARNING
+                document.getElementById("network-warning").style.display = "";
+                document.getElementById("btn-div").style.marginTop = 0;
             }
             // Case: Token is not selected but amount is entered
             else if (!selectedToken && swapAmount > 0) {
@@ -50,8 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
             //     startButton.setAttribute("disabled", "true");
             // }
         }
-
-        console.log("Wallet:", connectWallet);
     });
 });
 
@@ -92,11 +94,16 @@ function getStorage() {
     //debugger
     // Check if there's a previously connected account
     const storedAccount = localStorage.getItem('connectedAccount');
+    const currentBalance = localStorage.getItem('TokenBalance');
     if (storedAccount) {
         document.getElementById('walletText').textContent = storedAccount;
         startButton.textContent = "Enter Amount";
     }else{
         startButton.textContent = "Connect Metamask Wallet";
+    }
+
+    if(currentBalance){
+        document.getElementById('balance').value = `Bal: ${currentBalance} `;
     }
 }
 
@@ -109,7 +116,6 @@ function selectOption(iconSrc, text, value) {
 
     // Update the hidden input field with the selected value
     document.getElementById('selected-value').value = value;
-
     // Log the selected network value to the console
     console.log("Selected network:", value);
 }
@@ -122,6 +128,12 @@ function selectToken(iconSrc, tokenText, tokenValue) {
 
     // Update the hidden input field with the selected token value
     document.getElementById('selected-token-value').value = tokenValue;
+    
+    if(tokenToInput.value && swapAmountInput.value > 0){
+        //DISPLAY WARNING
+        document.getElementById("network-warning").style.display = "";
+        document.getElementById("btn-div").style.marginTop = 0;
+    }
     console.log("Selected token:", tokenValue);
 }
 
@@ -143,6 +155,10 @@ function selectToToken(iconSrc, tokenText, tokenValue) {
             //startButton.textContent = "Continue";
             startButton.setAttribute("hidden", true);
             continueButton.removeAttribute("hidden");
+
+            //DISPLAY WARNING
+            document.getElementById("network-warning").style.display = "";
+            document.getElementById("btn-div").style.marginTop = 0;
         } else {
             debugger;
             startButton.textContent = "Enter Amount";
