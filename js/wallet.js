@@ -133,6 +133,7 @@ function accountChanged() {
             localStorage.removeItem('TokenBalance');
            
             document.getElementById('walletText').textContent = "Connect Metamask Wallet";
+            document.getElementById('balance').value = "";
             showToast('Wallet disconnected!', 'info');
             window.location.reload();
         } else {

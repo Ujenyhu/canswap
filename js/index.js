@@ -103,6 +103,7 @@ function getStorage() {
     }
 
     if(currentBalance){
+        debugger
         document.getElementById('balance').value = `Bal: ${currentBalance} `;
     }
 }
