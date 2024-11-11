@@ -1,5 +1,5 @@
-<h1 align="center">👏 Canswap</h1>
-![clapping hands](https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Emoji_u1f44f.svg/1200px-Emoji_u1f44f.svg.png) Canswap
+<h1 align="left">👏 <img src="https://github.com/Ujenyhu/canswap/blob/main/img/canswap-logo.png" /> Canswap</h1>
+
 
 A decentralized application (DApp) that allows users to connect their MetaMask wallet, view balances, and swap tokens on the Ethereum test network (Sepolia). 
 This project is built with a user-friendly interface and leverages Uniswap's testnet contracts to simulate token swaps.
