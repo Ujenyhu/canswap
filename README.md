@@ -1,6 +1,6 @@
-<h1 align="left">👏 <img src="https://github.com/Ujenyhu/canswap/blob/main/img/canswap-logo.png" /> Canswap</h1>
+<h1 align="left"> <img src="https://github.com/Ujenyhu/canswap/blob/main/img/canswap-logo.png" size="5" /> Canswap</h1>
 
-
+[👏](url)
 A decentralized application (DApp) that allows users to connect their MetaMask wallet, view balances, and swap tokens on the Ethereum test network (Sepolia). 
 This project is built with a user-friendly interface and leverages Uniswap's testnet contracts to simulate token swaps.
 
