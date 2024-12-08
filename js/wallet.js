@@ -1,29 +1,101 @@
-//import { VarHelper } from "./varhelper.js";
-const ethSepoliaChain = '0xaa36a7';
 
-let provider;
+import { VarHelper } from "./helpers/varhelper.js";
+import { getTokenBySymbol, Token } from "./helpers/token.js";
+import { IERC20 } from "./helpers/abis.js";
+//const ethSepoliaChain = '0xaa36a7';
+
+// const metamask = new MetaMaskSDK.MetaMaskSDK({
+//   dappMetadata: {
+//     name: "Canswap",
+//   },
+//   infuraAPIKey: "WSw8wDh1ccTgvWCjB5-zjTbeAMdRFM1H",
+//   // Other options.
+// });
+// let provider;
+
+// Basic ERC-20 ABI with only the balanceOf function
+// const tokenABI = [
+//     "function balanceOf(address owner) view returns (uint256)"
+//   ];
+
+const provider = new ethers.JsonRpcProvider(`https://eth-sepolia.g.alchemy.com/v2/WSw8wDh1ccTgvWCjB5-zjTbeAMdRFM1H`);
+
 let signer;
 let userAddress;
-
+let tokenTo = document.getElementById('selected-token-to-value');
+var tokenFrom = document.getElementById('selected-token-value');
+let currentBalance = localStorage.getItem('TokenBalance');
+let userConnected = localStorage.getItem('connectedAccount');
 
 document.getElementById('connect-wallet').addEventListener('click', async () => {
     var walletText = document.getElementById('walletText').textContent;
     document.getElementById('connect-wallet').setAttribute("disabled", "true");
     if(walletText === "Connect Metamask Wallet"){
-        try {
-            await connectMetaMask();
-            await switchNetwork();
-            //document.getElementById('connect-wallet').setAttribute("disabled", "false");
-        } catch (error) {
-            debugger;
-            showToast(`Sorry! Could not connect to metamask. ${error.Message}`, 'error');
-        }
+
+        await connectMetaMask();
+        await switchNetwork();
+        document.getElementById('connect-wallet').setAttribute("disabled", "false");
     }else{
         showToast('Disconnect wallet from metamask and refresh page to connect to a different account.', 'error');
-        // alert("Disconnect wallet from metamask and refresh page to connect to a different account.");
     }
     
 });
+
+document.getElementById('selected-token-value').addEventListener('valueChanged', async () => {
+    debugger;
+    if(userConnected){
+        await GetBalance(userConnected);
+        // if(currentBalance === null || currentBalance === "undefined"){
+        //     await GetBalance(userConnected);
+        // }
+    }
+});
+
+// async function connectWallet() { 
+//     debugger
+
+//     // Check if MetaMask is directly available
+//     if (window.ethereum.isMetaMask) {
+//         try {
+
+//             const MMSDK = new MetaMaskSDK.MetaMaskSDK({
+//                 dappMetadata: {
+//                   name: "Example Pure JS Dapp",
+//                 },
+//                 infuraAPIKey: 'WSw8wDh1ccTgvWCjB5-zjTbeAMdRFM1H',
+//                 // Other options.
+//               });
+//               MMSDK.connect();
+//             // Create a provider and signer
+//            //provider = new ethers.providers.Web3Provider(window.ethereum);
+//             // Request accounts
+//             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+//             const account = accounts[0];
+
+//             // Get the connected wallet address
+//             userAddress = account;
+//             GetBalance(userAddress);
+
+//             // Save the connected account to localStorage     
+//             localStorage.setItem('connectedAccount', userAddress);
+//             document.getElementById('walletText').textContent = userAddress;
+//             document.getElementById("start-button").textContent = "Enter Amount";
+//             showToast('Wallet connected successfully!');
+//         } catch (error) {
+//             debugger;
+//             if(error.code === 4001){
+//                 showToast(`You rejected the request to connect to MetaMask`, 'error');
+//             }else{
+//                 showToast(`Failed to connect to MetaMask: ${error.message}`, 'error');
+//             }
+//            return;
+//         }
+//     } else {
+//         showToast('Only MetaMask is supported. Please install MetaMask and refresh the page.', 'error');
+//         return;
+//     }
+// }
+
 
 
 async function connectMetaMask() { 
@@ -32,15 +104,12 @@ async function connectMetaMask() {
     // Check if MetaMask is directly available
     if (window.ethereum && window.ethereum.isMetaMask) {
         try {
+
             // Request accounts from MetaMask
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts', params: [] });
             const account = accounts[0];
 
-            // Create a provider and signer
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            signer = provider.getSigner();
-
-            // Get the connected wallet address
+            // // Get the connected wallet address
             userAddress = account;
             GetBalance(userAddress);
 
@@ -50,15 +119,17 @@ async function connectMetaMask() {
             document.getElementById("start-button").textContent = "Enter Amount";
             showToast('Wallet connected successfully!');
         } catch (error) {
+            debugger;
             if(error.code === 4001){
                 showToast(`You rejected the request to connect to MetaMask`, 'error');
             }else{
                 showToast(`Failed to connect to MetaMask: ${error.message}`, 'error');
             }
-           
+           return;
         }
     } else {
-        showToast('Please install MetaMask!', 'error');
+        showToast('Only MetaMask is supported. Please install MetaMask and refresh the page.', 'error');
+        return;
     }
 }
 
@@ -101,7 +172,7 @@ async function switchNetwork() {
 
     const chainId = await window.ethereum.request({ method: 'eth_chainId' });
    
-    if (chainId !== ethSepoliaChain) {
+    if (chainId !== VarHelper.ethereum_sepolia_chain) {
       
         // Sepolia chain ID
       showToast('You are being switch to the Sepolia network in MetaMask!', 'info');
@@ -125,17 +196,20 @@ async function switchNetwork() {
 
 
 function accountChanged() {
-    //debugger;
+   
     window.ethereum.on('accountsChanged', (accounts) => {
+
+    debugger;
         if (accounts.length === 0) {
-            
+        
             localStorage.removeItem('connectedAccount');
             localStorage.removeItem('TokenBalance');
-           
+            
             document.getElementById('walletText').textContent = "Connect Metamask Wallet";
             document.getElementById('balance').value = "";
-            showToast('Wallet disconnected!', 'info');
+            
             window.location.reload();
+            showToast('Wallet disconnected!', 'info');
         } else {
             localStorage.setItem('connectedAccount', accounts[0]);
             GetBalance(accounts[0]);
@@ -149,10 +223,11 @@ function accountChanged() {
 
 
 function networkChanged(){
+  
     // Listen for network changes
     window.ethereum.on('chainChanged', async (chainId) => {
 
-        if (chainId !== ethSepoliaChain) {
+        if (chainId !== VarHelper.ethereum_sepolia_chain) {
             showToast('Please switch to the Sepolia network in MetaMask!', 'warning');
             document.getElementById("start-button").setAttribute("disabled", "true");
             document.getElementById("continue-button").setAttribute("disabled", "true");
@@ -161,51 +236,68 @@ function networkChanged(){
             document.getElementById("continue-button").removeAttribute("disabled");      
         }
     });
+
 }
 
-async function GetBalance(address){
-    try {
-        debugger;
-        const balance = await provider.getBalance(address);
-        // Format the balance from Wei to Ether
-        const balanceInEth = ethers.utils.formatEther(balance);
+//check token balance
+// async function CheckTokenBalance(token: Token, wallet: Wallet) {
+    
+//     const tokenContract = new Contract(token.address, IERC20, wallet); 
+//     const balance = tokenContract.balanceOf(wallet.address);
+//     // if(token.symbol === "WETH"){
+//     //     const wethContract = new Contract(token.address, IWETHABI, wallet); 
+//     //     balance = await this.provider.getBalance(wallet.address);
+//     // }else{
+//     //     const tokenContract = new Contract(token.address, IERC20, this.provider); 
+//     //     balance = await tokenContract.balanceOf(wallet.address);
+//     // }
+//     return balance
+// }
 
-        localStorage.setItem('TokenBalance', balanceInEth);
-        document.getElementById('balance').value = `Bal: ${balanceInEth}`;
-        console.log('Ether Balance:', balanceInEth);
-        //return balanceInEth;
+ async function GetBalance(address){
+    try {
+        let balance;
+        let formatedBal;
+        debugger
+        if(tokenFrom.value === "ETH"){ 
+            debugger
+            balance =  await provider.getBalance(address);
+            // if(balance > 0){
+            //     formatedBal = await ethers.formatUnits(balance, "ether");
+            // }
+           formatedBal = await ethers.formatUnits(balance, "ether");
+        }
+        else{
+          
+            debugger;
+            //Create a contract instance for the ERC-20 token
+            let token = getTokenBySymbol(tokenFrom.value.toUpperCase());
+           const tokenContract = new ethers.Contract(token.address, IERC20, provider);          
+            //Get the token balance for the user's address
+            balance = await tokenContract.balanceOf(address);
+        
+            formatedBal = await ethers.formatUnits(balance, token.decimals);
+        }
+
+        localStorage.setItem('TokenBalance', formatedBal);
+        document.getElementById('balance').value = `Bal: ${formatedBal}`;
+        console.log('Ether Balance:', formatedBal);
+        console.log('Balance:', balance);
     } catch (error) {
-        showToast(`Error fetching native balance`, 'error');
-        console.error('Error fetching native balance:', error);
+        localStorage.removeItem('TokenBalance');
+        document.getElementById('balance').value = '';
+        console.log('Error fetching native balance:', error);
     }
 }
 
-// Basic ERC-20 ABI with only the balanceOf function
-const tokenABI = [
-    "function balanceOf(address owner) view returns (uint256)"
-];
-
-async function getTokenBalance(tokenAddress, address) {
-    try {
-        // Create a contract instance for the ERC-20 token
-        const tokenContract = new ethers.Contract(tokenAddress, tokenABI, provider);
-        
-        // Get the token balance for the user's address
-        const balance = await tokenContract.balanceOf(address);
-        
-        // Format balance with appropriate decimals (usually 18 for ERC-20 tokens)
-        const formattedBalance = ethers.utils.formatUnits(balance, 18);
-        console.log('Token Balance:', formattedBalance);
-        
-        return formattedBalance;
-    } catch (error) {
-        console.error('Error fetching token balance:', error);
-    }
-}
 
 // Listen for account changes
-accountChanged();
-networkChanged();
+// Check if MetaMask is being used
+    accountChanged();
+    networkChanged();    
+
+
+//GetBalance("dhdg");
 
 //NOTE NOTE
 //Add an implementation of action when an account is disconnected. The continue button should be disabled just like the application loaded from start

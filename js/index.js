@@ -2,7 +2,7 @@
 
 const startButton = document.getElementById("start-button");
 const continueButton = document.getElementById("continue-button");
-
+const changeEvent = new Event('valueChanged');
 // continueButton.setAttribute("hidden", "true");
 // startButton.setAttribute("disabled", "true");
 
@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+
 // swapAmountInput.addEventListener('input', () => {
 
 //     const swapAmount = swapAmountInput.value.trim();
@@ -93,8 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function getStorage() {
     //debugger
     // Check if there's a previously connected account
-    const storedAccount = localStorage.getItem('connectedAccount');
-    const currentBalance = localStorage.getItem('TokenBalance');
+    let storedAccount = localStorage.getItem('connectedAccount');
+    let currentBalance = localStorage.getItem('TokenBalance');
     if (storedAccount) {
         document.getElementById('walletText').textContent = storedAccount;
         startButton.textContent = "Enter Amount";
@@ -102,11 +103,15 @@ function getStorage() {
         startButton.textContent = "Connect Metamask Wallet";
     }
 
-    if(currentBalance){
-        debugger
+    if(currentBalance !== null && currentBalance !== "undefined"){
+        debugger;
         document.getElementById('balance').value = `Bal: ${currentBalance} `;
+    }else{
+        document.getElementById('balance').value = "";
     }
 }
+
+
 
 
 function selectOption(iconSrc, text, value) {
@@ -123,19 +128,24 @@ function selectOption(iconSrc, text, value) {
 
 
 function selectToken(iconSrc, tokenText, tokenValue) {
+    debugger;
     // Update the dropdown button to show the selected token's icon and text
     document.getElementById('selected-token-icon').src = iconSrc;
     document.getElementById('selected-token-text').textContent = tokenText;
 
     // Update the hidden input field with the selected token value
-    document.getElementById('selected-token-value').value = tokenValue;
-    
+   let selectedTokenFrom = document.getElementById('selected-token-value');
+    selectedTokenFrom.value = tokenValue;
+
+
     if(tokenToInput.value && swapAmountInput.value > 0){
         //DISPLAY WARNING
         document.getElementById("network-warning").style.display = "";
         document.getElementById("btn-div").style.marginTop = 0;
     }
     console.log("Selected token:", tokenValue);
+    // Dispatch a custom event to notify that the token To value has changed
+    selectedTokenFrom.dispatchEvent(changeEvent);
 }
 
 
