@@ -18,9 +18,8 @@ import { IERC20 } from "./helpers/abis.js";
 //     "function balanceOf(address owner) view returns (uint256)"
 //   ];
 
-const provider = new ethers.JsonRpcProvider(`https://eth-sepolia.g.alchemy.com/v2/WSw8wDh1ccTgvWCjB5-zjTbeAMdRFM1H`);
+let provider = new ethers.JsonRpcProvider(`https://eth-sepolia.g.alchemy.com/v2/WSw8wDh1ccTgvWCjB5-zjTbeAMdRFM1H`);
 
-let signer;
 let userAddress;
 let tokenTo = document.getElementById('selected-token-to-value');
 var tokenFrom = document.getElementById('selected-token-value');
@@ -105,11 +104,12 @@ async function connectMetaMask() {
     if (window.ethereum && window.ethereum.isMetaMask) {
         try {
 
+            debugger;
             // Request accounts from MetaMask
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts', params: [] });
             const account = accounts[0];
-
-            // // Get the connected wallet address
+            
+            // Get the connected wallet address
             userAddress = account;
             GetBalance(userAddress);
 
@@ -280,7 +280,7 @@ function networkChanged(){
         }
 
         localStorage.setItem('TokenBalance', formatedBal);
-        document.getElementById('balance').value = `Bal: ${formatedBal}`;
+        document.getElementById('balance').innerText = `Bal: ${formatedBal}`;
         console.log('Ether Balance:', formatedBal);
         console.log('Balance:', balance);
     } catch (error) {

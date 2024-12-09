@@ -3,17 +3,17 @@
 const startButton = document.getElementById("start-button");
 const continueButton = document.getElementById("continue-button");
 const changeEvent = new Event('valueChanged');
-// continueButton.setAttribute("hidden", "true");
-// startButton.setAttribute("disabled", "true");
-
+const quoteEvent = new Event('estimateSwap');
+const balanceEvent = new Event('getBalance');
 
 let swapAmountInput = document.getElementById('swap-amount');
-const tokenToInput = document.getElementById('selected-token-to-value');
-
+let tokenToInput = document.getElementById('selected-token-to-value');
+let balanceId = document.getElementById('balance');
 
 
 document.addEventListener('DOMContentLoaded', () => {
     getStorage();
+   
     swapAmountInput.addEventListener('input', () => {
 
         const swapAmount = swapAmountInput.value.trim();
@@ -27,9 +27,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 startButton.setAttribute("hidden", true);
                 continueButton.removeAttribute("hidden");
                
-                //DISPLAY WARNING
-                document.getElementById("network-warning").style.display = "";
-                document.getElementById("btn-div").style.marginTop = 0;
+                if(balanceId.innerText !== "Bal: 0.0"){
+                
+                    //DISPLAY WARNING
+                    document.getElementById("network-warning-p").innerHTML = `<span class="fa fa-warning fa-1x"></span> Please make sure you are on the Sepolia testnet network before proceeding`;
+                    document.getElementById("network-warning").style.display = "";
+                    document.getElementById("btn-div").style.marginTop = 0;
+                }else{
+                    
+                    let selectedTokenFrom = document.getElementById('selected-token-value');
+                    
+                    //DISPLAY Balance WARNING
+                    document.getElementById("network-warning-p").innerHTML = `<span class="fa fa-warning fa-1x"></span> You need a sufficient balance of ${selectedTokenFrom.value} to continue`;
+                    document.getElementById("btn-div").style.marginTop = 0;
+                    continueButton.setAttribute("disabled", "true");             
+                }
+
+                //send event to get estimate for swap
+                swapAmountInput.dispatchEvent(quoteEvent);
+
             }
             // Case: Token is not selected but amount is entered
             else if (!selectedToken && swapAmount > 0) {
@@ -103,12 +119,12 @@ function getStorage() {
         startButton.textContent = "Connect Metamask Wallet";
     }
 
-    if(currentBalance !== null && currentBalance !== "undefined"){
-        debugger;
-        document.getElementById('balance').value = `Bal: ${currentBalance} `;
-    }else{
-        document.getElementById('balance').value = "";
-    }
+    // if(currentBalance !== null && currentBalance !== "undefined"){
+    //     debugger;
+    //     document.getElementById('balance').innerText = `Bal: ${currentBalance} `;
+    // }else{
+    //     document.getElementById('balance').innerText = null;
+    // }
 }
 
 
@@ -134,16 +150,27 @@ function selectToken(iconSrc, tokenText, tokenValue) {
     document.getElementById('selected-token-text').textContent = tokenText;
 
     // Update the hidden input field with the selected token value
-   let selectedTokenFrom = document.getElementById('selected-token-value');
+    let selectedTokenFrom = document.getElementById('selected-token-value');
     selectedTokenFrom.value = tokenValue;
 
 
     if(tokenToInput.value && swapAmountInput.value > 0){
-        //DISPLAY WARNING
-        document.getElementById("network-warning").style.display = "";
-        document.getElementById("btn-div").style.marginTop = 0;
+        debugger;
+
+        if(balanceId.innerText !== "Bal: 0.0"){
+           //DISPLAY WARNING
+           document.getElementById("network-warning-p").innerHTML = `<span class="fa fa-warning fa-1x"></span> Please make sure you on the sepolia testnet network before proceeding`;
+            document.getElementById("network-warning").style.display = "";
+            document.getElementById("btn-div").style.marginTop = 0;
+        }
+        else{
+              
+            //DISPLAY WARNING
+            document.getElementById("network-warning-p").innerHTML = `<span class="fa fa-warning fa-1x"></span> You need a sufficient balance of ${selectedTokenFrom.value} to continue`;
+            document.getElementById("btn-div").style.marginTop = 0;
+            continueButton.setAttribute("disabled", "true");
+        }
     }
-    console.log("Selected token:", tokenValue);
     // Dispatch a custom event to notify that the token To value has changed
     selectedTokenFrom.dispatchEvent(changeEvent);
 }
@@ -161,15 +188,30 @@ function selectToToken(iconSrc, tokenText, tokenValue) {
 
     
     if (document.getElementById('walletText').textContent !== "Connect Metamask Wallet") {
+        
         if (swapAmountInput.value !== "") {
             //debugger;
             //startButton.textContent = "Continue";
             startButton.setAttribute("hidden", true);
             continueButton.removeAttribute("hidden");
 
-            //DISPLAY WARNING
-            document.getElementById("network-warning").style.display = "";
-            document.getElementById("btn-div").style.marginTop = 0;
+            debugger;
+            if(balanceId.innerText !== "Bal: 0.0"){
+                
+                //DISPLAY WARNING
+                document.getElementById("network-warning-p").innerHTML = `<span class="fa fa-warning fa-1x"></span> Please make sure you on the sepolia testnet network before proceeding`;
+                document.getElementById("network-warning").style.display = "";
+                document.getElementById("btn-div").style.marginTop = 0;
+            }else{
+                
+                let selectedTokenFrom = document.getElementById('selected-token-value');
+                
+                //DISPLAY WARNING
+                document.getElementById("network-warning-p").innerHTML = `<span class="fa fa-warning fa-1x"></span> You need a sufficient balance of ${selectedTokenFrom.value} to continue`;
+                document.getElementById("btn-div").style.marginTop = 0;
+                continueButton.setAttribute("disabled", "true");
+
+            }
         } else {
             debugger;
             startButton.textContent = "Enter Amount";

@@ -55,6 +55,10 @@ const tokenMap = {
 
 
 export function getTokenBySymbol(symbol) {
+
+    if( symbol === 'ETH'){
+        symbol = 'WETH';
+    }       
    const token = tokenMap[symbol.toUpperCase()];
    if(!token) {
     throw new Error(`Token with symbol ${symbol} not found`);
