@@ -233,3 +233,38 @@ async function unwrapWeth(amountIn) {
         return { success: false, error };
     }
 }
+
+
+//Approve uniswap to access wallet address
+async function approveSwap(tokenAddress, amount) {  
+    try{
+        
+        web3Provider = await new ethers.BrowserProvider(window.ethereum);
+        signer = await web3Provider.getSigner();
+    
+        const tokenContract = new ethers.Contract(tokenAddress.address, IERC20, signer);
+        const approveTransactionReq = await tokenContract.approve(swapRouterAddress, amount);
+        const approveReceipt = await approveTransactionReq.wait();
+        // Check transaction status
+        if (approveReceipt.status === 1) {
+            debugger
+            return { success: true, approveReceipt };
+        } else {
+            return { success: false, approveReceipt };
+        }
+    }
+    catch(error){
+        debugger;
+        if (error.info && error.info.error) {
+            const errorCode = error.info.error.code;
+            const errorMessage = error.info.error.message;
+        
+           showToast(`${errorMessage}`, 'error');
+        }else
+        {
+            showToast(`Failed to complete swap transaction: ${error.message}`, 'error');
+        }
+        return { success: false, error };
+    } 
+}   
+
