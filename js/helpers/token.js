@@ -8,7 +8,14 @@ export class Token {
       this.symbol = symbol;
       this.name = name;
     }
-  }
+}
+
+export const supportedTokens ={
+    WETH : "WETH", 
+    ETH : "ETH",
+    USDT : "USDT",
+    USDC : "USDC",
+}
 
 
 

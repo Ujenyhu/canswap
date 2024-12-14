@@ -213,7 +213,7 @@ function selectToToken(iconSrc, tokenText, tokenValue) {
 
             }
         } else {
-            debugger;
+            //debugger;
             startButton.textContent = "Enter Amount";
         }
     }
@@ -247,7 +247,6 @@ function filterTokens() {
 
 
 function showToast(message, type = "success") {
-    debugger
     // Define background colors for each type
     const backgroundColors = {
         info: '#0dcaf0',
