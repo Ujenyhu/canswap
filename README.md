@@ -6,8 +6,6 @@ This project is built with a user-friendly interface and leverages Uniswap's tes
 ## Table of Contents
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [Setup](#setup)
-- [Project Structure](#project-structure)
 - [Usage](#usage)
 - [License](#license)
 - [Disclaimer](#disclaimer)
@@ -18,3 +16,14 @@ This project is built with a user-friendly interface and leverages Uniswap's tes
 - **Token Balance Display**: Shows the user's Ether and ERC-20 token balances.
 - **Token Swap**: Users can swap tokens on Ethereum testnets using Uniswap's router contracts, simulating real-world token swap functionality.
 - **Testnet Compatibility**: Works on Sepolia testnet, ideal for development and testing without the need for real assets.
+
+## Tech-Stack
+- **Vanilla Javascript**
+- **HTML, CSS, BOOTSTRAP**
+- **Ether.js, Metamask SDK**
+
+## Usage
+This a web application that enables swap on the etherem testnet. This code is a guide to implement/ intergrate swap/blockchain features in a javascript and web environment.
+
+## disclaimer
+
