@@ -10,6 +10,8 @@ const abiCoder = new ethers.AbiCoder();
 let web3Provider; 
 let signer;
 let provider;
+let userConnected = localStorage.getItem('connectedAccount');
+
 //Deployment addressess
 // Replace with actual Uniswap V3 pool factor address on Sepolia/Mainnet
 const poolFactoryAddress = '0x0227628f3F023bb0B980b67D528571c95c6DaC1c';
@@ -44,38 +46,46 @@ let continueButton = document.getElementById("continue-button");
 continueButton.addEventListener('click', async () => {
     try{
         
-        const tokenFrom = getTokenBySymbol(tokenFromId.value);
+        if(tokenFromId.value === tokenToId.value){
+            showToast(`Cannot swap from ${tokenFromId.value} => ${tokenToId.value}`, 'error');
 
-        //Get token details you want to swap to
-        const tokenTo = getTokenBySymbol(tokenToId.value);
+        }else
+        {
+
+            const tokenFrom = getTokenBySymbol(tokenFromId.value);
+
+            //Get token details you want to swap to
+            const tokenTo = getTokenBySymbol(tokenToId.value);
     
-        //parse amount, covert to wei
-        const requestAmount = ethers.parseUnits(swapAmountInputId.value, tokenFrom.decimals);
-       
-        if(tokenFrom.symbol === supportedTokens.WETH){
-
-            // Perform wrapping
-            const wrapResult = await wrapEth(requestAmount);
-            debugger;
-            if (wrapResult.success) {
-                console.log("Wrap successful:", wrapResult.wrapTx);
-
-                // Proceed to unwrap if needed
-                const unwrapStatus = await unwrapWeth();
-                if (unwrapStatus.success) {
-                    console.log("Unwrap successful");
+    
+        
+            //parse amount, covert to wei
+            const requestAmount = ethers.parseUnits(swapAmountInputId.value, tokenFrom.decimals);
+           
+            if(tokenFrom.symbol === supportedTokens.WETH){
+    
+                // Perform wrapping
+                const wrapResult = await wrapEth(requestAmount);
+                debugger;
+                if (wrapResult.success) {
+                    console.log("Wrap successful:", wrapResult.wrapTx);
+    
+                    // Proceed to unwrap if needed
+                    const unwrapStatus = await unwrapWeth();
+                    if (unwrapStatus.success) {
+                        console.log("Unwrap successful");
+                    } else {
+                        console.error("Unwrap failed");
+                    }
                 } else {
-                    console.error("Unwrap failed");
-                }
-            } else {
-                console.error("Wrap failed");
-            }     
-        }       
+                    console.error("Wrap failed");
+                }     
+            }  
+        }     
     }
     catch(error){
         console.error(error)
     }
-
 
 });
 
@@ -181,7 +191,6 @@ async function wrapEth(amountIn) {
 }
 
 
-
 async function unwrapWeth(amountIn) { 
 
     debugger
@@ -190,9 +199,9 @@ async function unwrapWeth(amountIn) {
     web3Provider = await new ethers.BrowserProvider(window.ethereum);
     signer = await web3Provider.getSigner();
     // If amountIn is null or 0, fetch the WETH balance from the wallet
-    if(amountIn === null){            
+    if(!amountIn){            
         const tokenContract = new ethers.Contract(WETH.address, IERC20, provider);          
-        balance = await tokenContract.balanceOf(signer.Address());     
+        amountIn = await tokenContract.balanceOf(userConnected);     
     }
 
     // If amountIn is still 0 after fetching balance, exit the function
