@@ -185,9 +185,6 @@
 
     async function GetBalance(address) {
         debugger
-        if(!checkNetworkConnectivity()){
-            return;
-        }
         try  {
             let balance;
             let formatedBal;
