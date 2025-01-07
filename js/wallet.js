@@ -13,17 +13,10 @@
         },
         infuraAPIKey:"WSw8wDh1ccTgvWCjB5-zjTbeAMdRFM1H",
         checkInstallationImmediately: true,
-        //shouldShimWeb3: false,
-        //defaultReadOnlyChainId:"0xaa36a7",
+        shouldShimWeb3: false,
     });
 
-
-    // Basic ERC-20 ABI with only the balanceOf function
-    // const tokenABI = [
-    //     "function balanceOf(address owner) view returns (uint256)"
-    //   ];
- 
-    let wallet;
+    let metamaskProvider;
     let provider = new ethers.JsonRpcProvider(`https://eth-sepolia.g.alchemy.com/v2/WSw8wDh1ccTgvWCjB5-zjTbeAMdRFM1H`);
     let userAddress;
     let tokenTo = document.getElementById('selected-token-to-value');
@@ -31,61 +24,75 @@
     let currentBalance = localStorage.getItem('TokenBalance');
     let userConnected = localStorage.getItem('connectedAccount');
 
+    //Start wallet connection
     document.getElementById('connect-wallet').addEventListener('click', async () => {
         try{
             var walletText = document.getElementById('walletText').textContent;
             document.getElementById('connect-wallet').setAttribute("disabled", "true");
-            if(walletText === "Connect Metamask Wallet"){       
+
+            if(walletText === "Connect Metamask Wallet")
+            {       
                 const connect = await connectMetaMask();
                 if(connect.success){
                     await switchNetwork();
-                    document.getElementById('connect-wallet').setAttribute("disabled", "false");
-                }else{
-                    showToast('Wallet connection unsucessful. Please try again.', 'error');
+                    document.getElementById('connect-wallet').removeAttribute("disabled");
                 }
-            }else{
+                else{
+                    showToast('Wallet connection unsuccessful. Please try again.', 'error');
+                }
+            }
+            else{
                 showToast('Disconnect wallet from metamask and refresh page to connect to a different account.', 'error');
             }
-            
+            return           
         }catch(error){
             //throw
+            document.getElementById('connect-wallet').removeAttribute("disabled");
+            return
         }
     });
 
+   
+    //Get current balance if token changes in dropdown value
     document.getElementById('selected-token-value').addEventListener('valueChanged', async () => {
         debugger;
         if(userConnected){
             await GetBalance(userConnected);
-            // if(currentBalance === null || currentBalance === "undefined"){
-            //     await GetBalance(userConnected);
-            // }
         }
+        return;
     });
 
 
+    //Connect to metamask
     async function connectMetaMask() { 
         debugger
         // Check if MetaMask is directly available
-        if (window.ethereum && window.ethereum.isMetaMask) {
-            try {
-
-                const accounts = await metamaskSdk.connect();               
-                // Get the connected wallet address
-            
-                if(accounts[0]){
-
-                    userAddress = accounts[0];
+        if (window.ethereum.isMetaMask) {
+            try 
+            {
+                await metamaskSdk.connect();  
+                metamaskProvider = await metamaskSdk.getProvider(); 
+                const accounts = await metamaskProvider.request({method: "eth_accounts"});         
+                // Get the connected wallet address         
+                if(accounts[0])
+                {
+                    userAddress = accounts[0];                  
                     await GetBalance(userAddress);
-
+                    
                     // Save the connected account to localStorage     
                     localStorage.setItem('connectedAccount', userAddress);
                     document.getElementById('walletText').textContent = userAddress;
                     document.getElementById("start-button").textContent = "Enter Amount";
+
+                    //register event listerners- Listen for account and network changes
+                    accountChanged();
+                    networkChanged();
+
                     showToast('Wallet connected successfully!');
                     return { success: true};;
-                }  
-                return { success: false};              
-            } catch (error) {
+                }               
+            } 
+            catch (error) {
                 debugger;
                 if(error.code === 4001){
                     showToast(`You rejected the request to connect to MetaMask`, 'error');
@@ -94,114 +101,33 @@
                 }
                 return { success: false};
             }
-        } else {
+        } 
+        else {
             showToast('Only MetaMask is supported. Please install MetaMask and refresh the page.', 'error');
             return { success: false};
         }
+        return { success: false};
     }
 
 
-    // async function connectWallet() { 
-    //     debugger
-
-                    
-        // if (window.ethereum && window.ethereum.isMetaMask) {
-        //     try {
-
-        //         // Request accounts
-        //         //const accounts = await window.ethereum.request({ method: 'eth_requestAccounts', params: [] });
-        //         const account = accounts[0];
-                
-        //         // Get the connected wallet address
-        //         userAddress = account;
-        //         GetBalance(userAddress);
-
-        //         // Save the connected account to localStorage     
-        //         localStorage.setItem('connectedAccount', userAddress);
-        //         document.getElementById('walletText').textContent = userAddress;
-        //         document.getElementById("start-button").textContent = "Enter Amount";
-        //         showToast('Wallet connected successfully!');
-        //     } catch (error) {
-        //         debugger;
-        //         if(error.code === 4001){
-        //             showToast(`You rejected the request to connect to MetaMask`, 'error');
-        //         }else{
-        //             showToast(`Failed to connect to MetaMask: ${error.message}`, 'error');
-        //         }
-        //     return;
-        //     }
-        // } else {
-        //     showToast('Only MetaMask is supported. Please install MetaMask and refresh the page.', 'error');
-        //     return;
-        // }
-    // }
-
-    // async function connectWallet() { 
-    //     debugger
-
-    //     // Check if MetaMask is directly available
-    //     if (window.ethereum.isMetaMask) {
-    //         try {
-
-    //             const MMSDK = new MetaMaskSDK.MetaMaskSDK({
-    //                 dappMetadata: {
-    //                   name: "Example Pure JS Dapp",
-    //                 },
-    //                 infuraAPIKey: 'WSw8wDh1ccTgvWCjB5-zjTbeAMdRFM1H',
-    //                 // Other options.
-    //               });
-    //               MMSDK.connect();
-    //             // Create a provider and signer
-    //            //provider = new ethers.providers.Web3Provider(window.ethereum);
-    //             // Request accounts
-    //             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-    //             const account = accounts[0];
-
-    //             // Get the connected wallet address
-    //             userAddress = account;
-    //             GetBalance(userAddress);
-
-    //             // Save the connected account to localStorage     
-    //             localStorage.setItem('connectedAccount', userAddress);
-    //             document.getElementById('walletText').textContent = userAddress;
-    //             document.getElementById("start-button").textContent = "Enter Amount";
-    //             showToast('Wallet connected successfully!');
-    //         } catch (error) {
-    //             debugger;
-    //             if(error.code === 4001){
-    //                 showToast(`You rejected the request to connect to MetaMask`, 'error');
-    //             }else{
-    //                 showToast(`Failed to connect to MetaMask: ${error.message}`, 'error');
-    //             }
-    //            return;
-    //         }
-    //     } else {
-    //         showToast('Only MetaMask is supported. Please install MetaMask and refresh the page.', 'error');
-    //         return;
-    //     }
-    // }
-
-
+    //Switch to wallet network to sepolia
     async function switchNetwork() {
-       // debugger;
-
-        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
         debugger;
-        if (chainId !== VarHelper.ethereum_sepolia_chain) {
         
+        const chainId = await metamaskProvider.request({ method: 'eth_chainId'});
+        if (chainId !== VarHelper.ethereum_sepolia_chain) {      
             // Sepolia chain ID
-            showToast('You are being switch to the Sepolia network in MetaMask!', 'info');
-
+            showToast('You are being switched to the Sepolia network in MetaMask!', 'info');
             try {
 
-                await window.ethereum.request({
+                await metamaskProvider.request({
                 method: "wallet_switchEthereumChain",
-                params: [{ chainId: ethSepoliaChain }],
+                params: [{ chainId: VarHelper.ethereum_sepolia_chain }],
                 });
                 showToast('Switched to Sepolia network!', 'info');
 
             } catch (switchError) {
-                showToast('Failed to switch network! Please switch manually on metamask to sepolia', 'error');
+                showToast('You rejected the automatic request to switch to sepolia network! Please switch manually on metamask.', 'error');
                 document.getElementById("continue-button").setAttribute("disabled", "true");
                 console.error("Failed to switch network:", switchError.message);
             }
@@ -210,9 +136,11 @@
     }
 
 
-    function accountChanged() {
+   //Listen for account change or removal
+    async function accountChanged() {
+        debugger;
 
-        window.ethereum.on('accountsChanged', (accounts) => {
+        metamaskProvider.on("accountsChanged", (accounts) => {
 
             if (accounts.length === 0) {
             
@@ -232,52 +160,46 @@
     
             }
         });
+        return;
     }
 
   // Listen for network changes
     function networkChanged(){ 
-        window.ethereum.on('chainChanged', async (chainId) => {
-
-            if (chainId !== VarHelper.ethereum_sepolia_chain) {
-                showToast('Please switch to the Sepolia network in MetaMask!', 'warning');
-                document.getElementById("start-button").setAttribute("disabled", "true");
-                document.getElementById("continue-button").setAttribute("disabled", "true");
-            }else{
-                document.getElementById("start-button").removeAttribute("disabled");
-                document.getElementById("continue-button").removeAttribute("disabled");      
-            }
-        });
+        debugger;
+        if(metamaskProvider.isConnected())
+        {
+            metamaskProvider.on("chainChanged", async (chainId) => {
+                if (chainId !== VarHelper.ethereum_sepolia_chain) {
+                    showToast('Please switch to the Sepolia network in MetaMask!', 'warning');
+                    document.getElementById("start-button").setAttribute("disabled", "true");
+                    document.getElementById("continue-button").setAttribute("disabled", "true");
+                }else{
+                    document.getElementById("start-button").removeAttribute("disabled");
+                    document.getElementById("continue-button").removeAttribute("disabled");      
+                }
+            });
+        }
+        return;
     }
 
-    //check token balance
-    // async function CheckTokenBalance(token: Token, wallet: Wallet) {
-        
-    //     const tokenContract = new Contract(token.address, IERC20, wallet); 
-    //     const balance = tokenContract.balanceOf(wallet.address);
-    //     // if(token.symbol === "WETH"){
-    //     //     const wethContract = new Contract(token.address, IWETHABI, wallet); 
-    //     //     balance = await this.provider.getBalance(wallet.address);
-    //     // }else{
-    //     //     const tokenContract = new Contract(token.address, IERC20, this.provider); 
-    //     //     balance = await tokenContract.balanceOf(wallet.address);
-    //     // }
-    //     return balance
-    // }
 
     async function GetBalance(address) {
-        try {
+        debugger
+        if(!checkNetworkConnectivity()){
+            return;
+        }
+        try  {
             let balance;
             let formatedBal;
-            debugger;
             if (address) {
-
                 if (tokenFrom.value === "ETH") {
-                    debugger;
                     balance = await provider.getBalance(address);
                     if (balance > 0) {
-                    formatedBal = await ethers.formatUnits(balance, "ether");
+                      formatedBal = await ethers.formatUnits(balance, "ether");
                     }
-                } else {
+                } else 
+                {
+                   
                     //Create a contract instance for the ERC-20 token
                     let token = getTokenBySymbol(tokenFrom.value.toUpperCase());
                     const tokenContract = new ethers.Contract(
@@ -294,75 +216,20 @@
                 localStorage.setItem("TokenBalance", formatedBal);
                 document.getElementById("balance").innerText = `Bal: ${formatedBal}`;
             }
+            return;
         } catch (error) {
+            debugger;
+            if (error.code === "NETWORK_ERROR") {
+                showToast("Network error. Please check your internet connection.", "error");
+            }
             localStorage.removeItem("TokenBalance");
             document.getElementById("balance").value = "";
             console.log("Error fetching native balance:", error);
+           
+            return;
         }
     }
 
-    // Listen for account and network changes
-    accountChanged();
-    networkChanged();    
 
-
-
-
-
-
-
-
-
-
-
-
-// const ethereum_sepolia_chain = '0xaa36a7';
-// const ethereum = metamask.getProvider();
-
-
-// async function connectWallet() {
-//     debugger;
-//     if(!ethereum) {
-//         debugger;
-//         console.log('MetaMask is not installed!');
-//         return;
-//     }
-
-//     try {
-//         debugger;
-//         // Request connection to MetaMask
-//         const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-
-//         if (accounts.length > 0) {
-//             const account = accounts[0];
-//             console.log(`Connected to wallet: ${account}`);
-
-//             // Check if connected to Sepolia
-//             const chainId = await ethereum.request({ method: 'eth_chainId' });
-//             if (chainId !== ethereum_sepolia_chain) {
-//                 alert('Please switch to the Sepolia network in MetaMask!');
-//                 await switchToSepolia();
-//             }
-//         }
-//     } catch (error) {
-//         console.error('Error connecting to MetaMask:', error);
-//     }
-// }
-
-// // Function to switch to Sepolia network
-// async function switchToSepolia() {
-//     if (!ethereum) {
-//         console.error('MetaMask provider not available!');
-//         return;
-//     }
-
-//     try {
-//         await ethereum.request({
-//             method: 'wallet_switchEthereumChain',
-//             params: [{ chainId: ethereum_sepolia_chain }],
-//         });
-//         console.log('Switched to Sepolia network!');
-//     } catch (switchError) {
-//         console.error('Failed to switch network:', switchError);
-//     }
-// }
+ 
+   

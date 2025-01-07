@@ -9,7 +9,7 @@ const abiCoder = new ethers.AbiCoder();
 // Initialize variables
 let web3Provider; 
 let signer;
-let provider;
+let provider = new ethers.JsonRpcProvider(`https://eth-sepolia.g.alchemy.com/v2/WSw8wDh1ccTgvWCjB5-zjTbeAMdRFM1H`);
 let userConnected = localStorage.getItem('connectedAccount');
 
 //Deployment addressess
@@ -19,7 +19,6 @@ const swapRouterAddress = '0xE592427A0AEce92De3Edee1F18E0157C05861564' // main e
 const quoteContractAddress = '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6';
 //const quoteContractAddress = '0xEd1f6473345F45b75F8179591dd5bA1888cf2FB3';
 
-//const { ChainId, Fetcher, WETH, Route, Trade, TokenAmount, TradeType } = require ('@uniswap/sdk');
 
 // reusable vars
 let tokenToId = document.getElementById('selected-token-to-value');
@@ -27,11 +26,7 @@ let tokenFromId = document.getElementById('selected-token-value');
 let swapAmountInputId = document.getElementById('swap-amount');
 let estimatedValueId = document.getElementById('estimatedVal');
 let continueButton = document.getElementById("continue-button");
-// if(window.ethereum){
-    
-    //debugger;
-    provider = new ethers.JsonRpcProvider(`https://eth-sepolia.g.alchemy.com/v2/WSw8wDh1ccTgvWCjB5-zjTbeAMdRFM1H`);
-// }
+
 
 // swapAmountInputId.addEventListener('estimateSwap', async () => {
 //     debugger
