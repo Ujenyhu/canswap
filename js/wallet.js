@@ -148,9 +148,9 @@
                 localStorage.removeItem('TokenBalance');
                 
                 document.getElementById('walletText').textContent = "Connect Metamask Wallet";
-                document.getElementById('balance').value = "";                
                 showToast('Wallet disconnected!', 'info');
-                window.location.reload();
+                document.getElementById('balance').value = "";                
+                
             } else {
                 localStorage.setItem('connectedAccount', accounts[0]);
                 GetBalance(accounts[0]);
@@ -159,6 +159,7 @@
                 showToast('Wallet connected successfully!');
     
             }
+            window.location.reload();
         });
         return;
     }
