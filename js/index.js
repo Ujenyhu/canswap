@@ -11,7 +11,7 @@ let balanceId = document.getElementById('balance');
 
 document.addEventListener('DOMContentLoaded', () => {
     getStorage();
-   
+
     swapAmountInput.addEventListener('input', () => {
 
         const swapAmount = swapAmountInput.value.trim();
@@ -115,15 +115,6 @@ function getStorage() {
     }else{
         startButton.textContent = "Connect Metamask Wallet";
     }
-}
-
-function clearStorage() {
-    debugger;
-    // Check if there's a previously connected account
-    let storedAccount = localStorage.getItem('connectedAccount');
-    localStorage.removeItem(storedAccount);
-    startButton.textContent = "Connect Metamask Wallet";
-    return;
 }
 
 
@@ -261,5 +252,4 @@ function showToast(message, type = "success") {
 }
 
 getStorage();
-//clearStorage()
 
