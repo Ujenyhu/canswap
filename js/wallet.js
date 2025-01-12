@@ -6,7 +6,7 @@
 
 
     //Initialize MetaMask SDK (if using it)
-    const metamaskSdk = new MetaMaskSDK.MetaMaskSDK({
+    export const metamaskSdk = new MetaMaskSDK.MetaMaskSDK({
         dappMetadata: {
             name: "Canswap",
             url: window.location.href,

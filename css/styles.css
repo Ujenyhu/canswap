@@ -139,13 +139,13 @@ input[type=number] {
 
 }
 
-#network-warning {
+#network-warning, #action-warning {
     justify-content: center;
     align-items: center;
     display: none;
 }
 
-#network-warning p{
+#network-warning p, #action-warning p{
     font: 1em;
     color: whitesmoke;
     text-align: center;
@@ -154,6 +154,11 @@ input[type=number] {
 #network-warning span{
     color: rgb(241, 204, 95);  
     /* #ab7903  */
+    margin-right: 0.3rem;
+}
+
+#action-warning span{
+    color: #dc3545;  
     margin-right: 0.3rem;
 }
 

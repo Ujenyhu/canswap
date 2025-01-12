@@ -4,10 +4,13 @@ import { Quoter as QuoterABI } from "./helpers/abis.js";
 import { IWETHABI } from "./helpers/abis.js";
 import { IERC20 } from "./helpers/abis.js";
 import { VarHelper } from "./helpers/varhelper.js";
+import { metamaskSdk } from "./wallet.js";
 const abiCoder = new ethers.AbiCoder();
 
 // Initialize variables
-let web3Provider; 
+let web3Provider;
+debugger; 
+const ethereum = metamaskSdk.getProvider();
 let signer;
 let provider = new ethers.JsonRpcProvider(`https://eth-sepolia.g.alchemy.com/v2/WSw8wDh1ccTgvWCjB5-zjTbeAMdRFM1H`);
 let userConnected = localStorage.getItem('connectedAccount');
@@ -43,17 +46,14 @@ continueButton.addEventListener('click', async () => {
         
         if(tokenFromId.value === tokenToId.value){
             showToast(`Cannot swap from ${tokenFromId.value} => ${tokenToId.value}`, 'error');
-
-        }else
-        {
+            return
+        }else {
 
             const tokenFrom = getTokenBySymbol(tokenFromId.value);
 
             //Get token details you want to swap to
             const tokenTo = getTokenBySymbol(tokenToId.value);
-    
-    
-        
+          
             //parse amount, covert to wei
             const requestAmount = ethers.parseUnits(swapAmountInputId.value, tokenFrom.decimals);
            
@@ -63,25 +63,98 @@ continueButton.addEventListener('click', async () => {
                 const wrapResult = await wrapEth(requestAmount);
                 debugger;
                 if (wrapResult.success) {
-                    console.log("Wrap successful:", wrapResult.wrapTx);
-    
-                    // Proceed to unwrap if needed
-                    const unwrapStatus = await unwrapWeth();
-                    if (unwrapStatus.success) {
-                        console.log("Unwrap successful");
-                    } else {
-                        console.error("Unwrap failed");
+                    //approve swap by uniswap
+                    if((await approveSwap(tokenFrom, requestAmount)).success){
+                       
+                        //Approve is successful, proceed to initiate swap
+                        //set swap object               
+                        const swapParams = {
+                            tokenIn: tokenFrom.address,
+                            tokenOut: tokenTo.address,
+                            fee: 3000,
+                            recipient: userConnected,
+                            deadline: Math.floor(new Date().getTime() / 1000 + 60 * 20),
+                            amountIn: request.amount,
+                            amountOutMinimum: 0,
+                            sqrtPriceLimitX96: 0
+                        };
+                        //Exceute swap
+                        const swapResponse = await executeSwap(params);
+                        if(swapResponse.success){
+                            showToast(`Swap from ${tokenFromId.value} => ${tokenToId.value} was successful with transactionHash: ${swapResponse.swapReceipt.hash}`, 'success');
+                            return
+                        }else{
+                            
+                            // Proceed to unwrap previously wrapped et
+                            const unwrapStatus = await unwrapWeth();
+                            showToast(`Swap from ${tokenFromId.value} => ${tokenToId.value} failed`, 'error');
+                            return
+                        }
+
+                    }else{
+                        //If failed,Proceed to unwrap previously wrapped et
+                        const unwrapStatus = await unwrapWeth();
+                        showToast(`Swap from ${tokenFromId.value} => ${tokenToId.value} failed`, 'error');
+                        return
                     }
+                    //console.log("Wrap successful:", wrapResult.wrapTx);
+                    // // Proceed to unwrap if needed
+                    // const unwrapStatus = await unwrapWeth();
+                    // if (unwrapStatus.success) {
+                    //     console.log("Unwrap successful");
+                    // } else {
+                    //     console.error("Unwrap failed");
+                    // }
                 } else {
                     console.error("Wrap failed");
+                    showToast(`Swap from ${tokenFromId.value} => ${tokenToId.value} failed`, 'error');
+                    return
                 }     
-            }  
+            }else{
+
+                debugger;
+                const approveSwapResult = await approveSwap(tokenFrom, requestAmount)
+                if(approveSwapResult.success){
+
+                    //execute swap                
+                    const swapParams = {
+                        tokenIn: tokenFrom.address,
+                        tokenOut: tokenTo.address,
+                        fee: 3000,
+                        recipient: userConnected,
+                        deadline: Math.floor(new Date().getTime() / 1000 + 60 * 20),
+                        amountIn: request.amount,
+                        amountOutMinimum: 0,
+                        sqrtPriceLimitX96: 0
+                    };
+
+                    const executeSwapResult = await executeSwap(swapParams);
+                    if(executeSwapResult.success){
+                       
+                        if(tokenTo.symbol === ("WETH")){                          
+                            
+                            //Convert from weth to eth
+                            const unwrapStatus = await unwrapWeth();
+                            showToast(`Swap successful with transactionHash: ${executeSwapResult.swapReceipt.hash}`, 'success');
+                            return
+                        }                     
+                    }else{
+                        showToast(`Swap from ${tokenFromId.value} => ${tokenToId.value} failed`, 'error');
+                        return
+                    }
+                }else{
+                    showToast(`Swap from ${tokenFromId.value} => ${tokenToId.value} failed`, 'error');
+                    return
+                }
+            } 
         }     
     }
     catch(error){
         console.error(error)
+        showToast(`Acction not completed ${error.message}`, 'error');
+        return
     }
-
+    
 });
 
 
@@ -145,17 +218,15 @@ async function estimateSwap() {
 
 }
 
-//wrap eth
+//wrap eth to weth
 async function wrapEth(amountIn) { 
-
-    debugger
-    const WETH = getTokenBySymbol("WETH")
-    web3Provider = await new ethers.BrowserProvider(window.ethereum);
-    signer = await web3Provider.getSigner();
-    const wethContract = new ethers.Contract(WETH.address, IWETHABI, signer);
-
-    //wrap eth to weth
     try{
+        debugger;
+        const WETH = getTokenBySymbol("WETH")
+        web3Provider = await new ethers.BrowserProvider(ethereum);
+        signer = await web3Provider.getSigner();
+      
+        const wethContract = new ethers.Contract(WETH.address, IWETHABI, signer);
         const wrapTxReq = await wethContract.deposit({value: amountIn});     
         const wrapTx = await wrapTxReq.wait();
          debugger
@@ -175,7 +246,7 @@ async function wrapEth(amountIn) {
             const errorCode = error.info.error.code;
             const errorMessage = error.info.error.message;
         
-           showToast(`${errorMessage}`, 'error');
+            showToast(` ${errorCode}: ${errorMessage}`, 'error');
         }else
         {
             showToast(`Failed to complete swap transaction: ${error.message}`, 'error');
@@ -191,7 +262,7 @@ async function unwrapWeth(amountIn) {
     debugger
     const WETH = getTokenBySymbol("WETH");
 
-    web3Provider = await new ethers.BrowserProvider(window.ethereum);
+    web3Provider = await new ethers.BrowserProvider(ethereum);
     signer = await web3Provider.getSigner();
     // If amountIn is null or 0, fetch the WETH balance from the wallet
     if(!amountIn){            
@@ -229,7 +300,7 @@ async function unwrapWeth(amountIn) {
             const errorCode = error.info.error.code;
             const errorMessage = error.info.error.message;
         
-           showToast(`${errorMessage}`, 'error');
+            showToast(` ${errorCode}: ${errorMessage}`, 'error');
         }else
         {
             showToast(`Failed to complete swap transaction: ${error.message}`, 'error');
@@ -240,13 +311,13 @@ async function unwrapWeth(amountIn) {
 
 
 //Approve uniswap to access wallet address
-async function approveSwap(tokenAddress, amount) {  
+async function approveSwap(tokenFrom, amount) {  
     try{
         
-        web3Provider = await new ethers.BrowserProvider(window.ethereum);
+        web3Provider = await new ethers.BrowserProvider(ethereum);
         signer = await web3Provider.getSigner();
     
-        const tokenContract = new ethers.Contract(tokenAddress.address, IERC20, signer);
+        const tokenContract = new ethers.Contract(tokenFrom.address, IERC20, signer);
         const approveTransactionReq = await tokenContract.approve(swapRouterAddress, amount);
         const approveReceipt = await approveTransactionReq.wait();
         // Check transaction status
@@ -263,12 +334,46 @@ async function approveSwap(tokenAddress, amount) {
             const errorCode = error.info.error.code;
             const errorMessage = error.info.error.message;
         
-           showToast(`${errorMessage}`, 'error');
+           console.log(`${errorMessage}`);
+           showToast(` ${errorCode}: ${errorMessage}`, 'error');
         }else
         {
-            showToast(`Failed to complete swap transaction: ${error.message}`, 'error');
+            console.log(`${error.message}`);
+           showToast(`Failed to complete swap transaction: ${error.message}`, 'error');
         }
         return { success: false, error };
     } 
 }   
 
+//Swap token
+async function executeSwap(params){
+    try{
+        debugger;
+
+        web3Provider = await new ethers.BrowserProvider(ethereum);
+        signer = await web3Provider.getSigner();
+
+        const uniswapRouter =  new ethers.Contract(swapRouterAddress, ISwapRouterV3ABI, signer)
+        const swapTransaction = await uniswapRouter.exactInputSingle(params);
+        const swapReceipt = await swapTransaction.wait();
+
+        // Check transaction status
+        if (swapReceipt.status === 1) {
+            return { success: true, swapReceipt };
+        } else {
+            return { success: false, swapReceipt };
+        }
+    }catch(error){
+        debugger;
+        if (error.info && error.info.error) {
+            const errorCode = error.info.error.code;
+            const errorMessage = error.info.error.message;
+        
+           showToast(` ${errorCode}: ${errorMessage}`, 'error');
+        }else
+        {
+            showToast(`Failed to complete swap transaction: ${error.message}`, 'error');
+        }
+        return { success: false, error };
+    }
+}    
