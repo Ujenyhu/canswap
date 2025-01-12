@@ -8,8 +8,7 @@ import { metamaskSdk } from "./wallet.js";
 const abiCoder = new ethers.AbiCoder();
 
 // Initialize variables
-let web3Provider;
-debugger; 
+let web3Provider; 
 const ethereum = metamaskSdk.getProvider();
 let signer;
 let provider = new ethers.JsonRpcProvider(`https://eth-sepolia.g.alchemy.com/v2/WSw8wDh1ccTgvWCjB5-zjTbeAMdRFM1H`);
